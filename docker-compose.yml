@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: bp-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-bpuser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-bppassword}
+      POSTGRES_DB: ${POSTGRES_DB:-bpdb}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - bp-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bpuser -d bpdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: bp-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-bpuser}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-bppassword}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - bp-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  bp-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
