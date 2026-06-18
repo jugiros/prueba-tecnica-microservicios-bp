@@ -4,7 +4,7 @@ import com.bp.mscuentas.domain.model.Cuenta;
 import com.bp.mscuentas.domain.model.Movimiento;
 import com.bp.mscuentas.domain.port.out.CuentaRepositoryPort;
 import com.bp.mscuentas.domain.port.out.MovimientoRepositoryPort;
-import com.bp.mscuentas.infrastructure.adapter.out.feign.ClienteFeignClient;
+import com.bp.mscuentas.infrastructure.adapter.out.feign.ClienteRestClient;
 import com.bp.mscuentas.shared.dto.ReporteDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,7 @@ public class ReporteService {
 
     private final CuentaRepositoryPort cuentaRepository;
     private final MovimientoRepositoryPort movimientoRepository;
-    private final ClienteFeignClient clienteFeignClient;
+    private final ClienteRestClient clienteRestClient;
 
     public List<ReporteDTO> generarReporte(Long clienteId,
                                            LocalDateTime fechaInicio,
@@ -29,8 +29,8 @@ public class ReporteService {
         log.info("Generando reporte para clienteId: {} entre {} y {}",
                 clienteId, fechaInicio, fechaFin);
 
-        ClienteFeignClient.ClienteDTO cliente =
-                clienteFeignClient.obtenerClientePorId(clienteId);
+        ClienteRestClient.ClienteDTO cliente =
+                clienteRestClient.obtenerClientePorId(clienteId);
 
         List<Cuenta> cuentas = cuentaRepository.buscarPorClienteId(clienteId);
         List<ReporteDTO> reporte = new ArrayList<>();
