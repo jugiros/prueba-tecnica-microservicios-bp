@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "bp-microservicios-2024",
     "name": "Banco BP - Microservicios API",
-    "description": "Coleccion completa de endpoints para ms-clientes y ms-cuentas — Prueba Tecnica BP/DEVSU",
+    "description": "Coleccion completa de endpoints para ms-clientes y ms-cuentas — Prueba Tecnica BP/DEVSU. Ejecutar en el orden indicado.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -10,18 +10,13 @@
       "name": "MS-Clientes",
       "item": [
         {
-          "name": "Crear Cliente — Jose Lema",
+          "name": "1. Crear Cliente — Jose Lema",
           "request": {
             "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json", "type": "text" }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }],
             "url": {
               "raw": "http://localhost:8081/api/clientes",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8081",
-              "path": ["api", "clientes"]
+              "protocol": "http", "host": ["localhost"], "port": "8081", "path": ["api", "clientes"]
             },
             "body": {
               "mode": "raw",
@@ -31,18 +26,13 @@
           }
         },
         {
-          "name": "Crear Cliente — Marianela Montalvo",
+          "name": "2. Crear Cliente — Marianela Montalvo",
           "request": {
             "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json", "type": "text" }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }],
             "url": {
               "raw": "http://localhost:8081/api/clientes",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8081",
-              "path": ["api", "clientes"]
+              "protocol": "http", "host": ["localhost"], "port": "8081", "path": ["api", "clientes"]
             },
             "body": {
               "mode": "raw",
@@ -52,18 +42,13 @@
           }
         },
         {
-          "name": "Crear Cliente — Juan Osorio",
+          "name": "3. Crear Cliente — Juan Osorio",
           "request": {
             "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json", "type": "text" }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }],
             "url": {
               "raw": "http://localhost:8081/api/clientes",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8081",
-              "path": ["api", "clientes"]
+              "protocol": "http", "host": ["localhost"], "port": "8081", "path": ["api", "clientes"]
             },
             "body": {
               "mode": "raw",
@@ -79,10 +64,7 @@
             "header": [],
             "url": {
               "raw": "http://localhost:8081/api/clientes",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8081",
-              "path": ["api", "clientes"]
+              "protocol": "http", "host": ["localhost"], "port": "8081", "path": ["api", "clientes"]
             }
           }
         },
@@ -93,10 +75,7 @@
             "header": [],
             "url": {
               "raw": "http://localhost:8081/api/clientes/1",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8081",
-              "path": ["api", "clientes", "1"]
+              "protocol": "http", "host": ["localhost"], "port": "8081", "path": ["api", "clientes", "1"]
             }
           }
         },
@@ -104,15 +83,10 @@
           "name": "Actualizar Cliente (PUT)",
           "request": {
             "method": "PUT",
-            "header": [
-              { "key": "Content-Type", "value": "application/json", "type": "text" }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }],
             "url": {
               "raw": "http://localhost:8081/api/clientes/1",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8081",
-              "path": ["api", "clientes", "1"]
+              "protocol": "http", "host": ["localhost"], "port": "8081", "path": ["api", "clientes", "1"]
             },
             "body": {
               "mode": "raw",
@@ -125,15 +99,10 @@
           "name": "Actualizar Parcial Cliente (PATCH)",
           "request": {
             "method": "PATCH",
-            "header": [
-              { "key": "Content-Type", "value": "application/json", "type": "text" }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }],
             "url": {
               "raw": "http://localhost:8081/api/clientes/1",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8081",
-              "path": ["api", "clientes", "1"]
+              "protocol": "http", "host": ["localhost"], "port": "8081", "path": ["api", "clientes", "1"]
             },
             "body": {
               "mode": "raw",
@@ -149,10 +118,7 @@
             "header": [],
             "url": {
               "raw": "http://localhost:8081/api/clientes/1",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8081",
-              "path": ["api", "clientes", "1"]
+              "protocol": "http", "host": ["localhost"], "port": "8081", "path": ["api", "clientes", "1"]
             }
           }
         }
@@ -162,18 +128,13 @@
       "name": "MS-Cuentas",
       "item": [
         {
-          "name": "Crear Cuenta — Jose Lema Ahorros 478758",
+          "name": "4. Crear Cuenta — Jose Lema Ahorros 478758",
           "request": {
             "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json", "type": "text" }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }],
             "url": {
               "raw": "http://localhost:8082/api/cuentas",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8082",
-              "path": ["api", "cuentas"]
+              "protocol": "http", "host": ["localhost"], "port": "8082", "path": ["api", "cuentas"]
             },
             "body": {
               "mode": "raw",
@@ -183,18 +144,13 @@
           }
         },
         {
-          "name": "Crear Cuenta — Marianela Corriente 225487",
+          "name": "5. Crear Cuenta — Marianela Corriente 225487",
           "request": {
             "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json", "type": "text" }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }],
             "url": {
               "raw": "http://localhost:8082/api/cuentas",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8082",
-              "path": ["api", "cuentas"]
+              "protocol": "http", "host": ["localhost"], "port": "8082", "path": ["api", "cuentas"]
             },
             "body": {
               "mode": "raw",
@@ -204,18 +160,29 @@
           }
         },
         {
-          "name": "Crear Cuenta — Marianela Ahorros 496825",
+          "name": "6. Crear Cuenta — Juan Osorio Ahorros 495878",
           "request": {
             "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json", "type": "text" }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }],
             "url": {
               "raw": "http://localhost:8082/api/cuentas",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8082",
-              "path": ["api", "cuentas"]
+              "protocol": "http", "host": ["localhost"], "port": "8082", "path": ["api", "cuentas"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"numeroCuenta\": \"495878\",\n  \"tipoCuenta\": \"Ahorros\",\n  \"saldoInicial\": 0.00,\n  \"clienteId\": 3,\n  \"estado\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "7. Crear Cuenta — Marianela Ahorros 496825",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }],
+            "url": {
+              "raw": "http://localhost:8082/api/cuentas",
+              "protocol": "http", "host": ["localhost"], "port": "8082", "path": ["api", "cuentas"]
             },
             "body": {
               "mode": "raw",
@@ -225,22 +192,17 @@
           }
         },
         {
-          "name": "Crear Cuenta — Juan Osorio Ahorros 495878",
+          "name": "8. Crear Cuenta — Jose Lema Corriente 585545",
           "request": {
             "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json", "type": "text" }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }],
             "url": {
               "raw": "http://localhost:8082/api/cuentas",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8082",
-              "path": ["api", "cuentas"]
+              "protocol": "http", "host": ["localhost"], "port": "8082", "path": ["api", "cuentas"]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"numeroCuenta\": \"495878\",\n  \"tipoCuenta\": \"Ahorros\",\n  \"saldoInicial\": 0.00,\n  \"clienteId\": 3,\n  \"estado\": true\n}",
+              "raw": "{\n  \"numeroCuenta\": \"585545\",\n  \"tipoCuenta\": \"Corriente\",\n  \"saldoInicial\": 1000.00,\n  \"clienteId\": 1,\n  \"estado\": true\n}",
               "options": { "raw": { "language": "json" } }
             }
           }
@@ -252,10 +214,7 @@
             "header": [],
             "url": {
               "raw": "http://localhost:8082/api/cuentas",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8082",
-              "path": ["api", "cuentas"]
+              "protocol": "http", "host": ["localhost"], "port": "8082", "path": ["api", "cuentas"]
             }
           }
         },
@@ -266,10 +225,7 @@
             "header": [],
             "url": {
               "raw": "http://localhost:8082/api/cuentas/1",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8082",
-              "path": ["api", "cuentas", "1"]
+              "protocol": "http", "host": ["localhost"], "port": "8082", "path": ["api", "cuentas", "1"]
             }
           }
         },
@@ -277,15 +233,10 @@
           "name": "Actualizar Cuenta (PUT)",
           "request": {
             "method": "PUT",
-            "header": [
-              { "key": "Content-Type", "value": "application/json", "type": "text" }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }],
             "url": {
               "raw": "http://localhost:8082/api/cuentas/1",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8082",
-              "path": ["api", "cuentas", "1"]
+              "protocol": "http", "host": ["localhost"], "port": "8082", "path": ["api", "cuentas", "1"]
             },
             "body": {
               "mode": "raw",
@@ -298,15 +249,10 @@
           "name": "Desactivar Cuenta (PATCH)",
           "request": {
             "method": "PATCH",
-            "header": [
-              { "key": "Content-Type", "value": "application/json", "type": "text" }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }],
             "url": {
               "raw": "http://localhost:8082/api/cuentas/1",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8082",
-              "path": ["api", "cuentas", "1"]
+              "protocol": "http", "host": ["localhost"], "port": "8082", "path": ["api", "cuentas", "1"]
             },
             "body": {
               "mode": "raw",
@@ -321,39 +267,13 @@
       "name": "MS-Movimientos",
       "item": [
         {
-          "name": "Deposito 600 — Cuenta 1 Jose Lema",
+          "name": "9. Retiro 575 — Cuenta 478758 Jose Lema Ahorros",
           "request": {
             "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json", "type": "text" }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }],
             "url": {
               "raw": "http://localhost:8082/api/movimientos",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8082",
-              "path": ["api", "movimientos"]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"valor\": 600.00,\n  \"cuentaId\": 1\n}",
-              "options": { "raw": { "language": "json" } }
-            }
-          }
-        },
-        {
-          "name": "Retiro 575 — Cuenta 1 Jose Lema",
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json", "type": "text" }
-            ],
-            "url": {
-              "raw": "http://localhost:8082/api/movimientos",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8082",
-              "path": ["api", "movimientos"]
+              "protocol": "http", "host": ["localhost"], "port": "8082", "path": ["api", "movimientos"]
             },
             "body": {
               "mode": "raw",
@@ -363,64 +283,65 @@
           }
         },
         {
-          "name": "Deposito 150 — Cuenta 2 Marianela Corriente",
+          "name": "10. Deposito 600 — Cuenta 225487 Marianela Corriente",
           "request": {
             "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json", "type": "text" }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }],
             "url": {
               "raw": "http://localhost:8082/api/movimientos",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8082",
-              "path": ["api", "movimientos"]
+              "protocol": "http", "host": ["localhost"], "port": "8082", "path": ["api", "movimientos"]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"valor\": 150.00,\n  \"cuentaId\": 2\n}",
+              "raw": "{\n  \"valor\": 600.00,\n  \"cuentaId\": 2\n}",
               "options": { "raw": { "language": "json" } }
             }
           }
         },
         {
-          "name": "Retiro 540 — Cuenta 3 Marianela Ahorros",
+          "name": "11. Deposito 150 — Cuenta 495878 Juan Osorio Ahorros",
           "request": {
             "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json", "type": "text" }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }],
             "url": {
               "raw": "http://localhost:8082/api/movimientos",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8082",
-              "path": ["api", "movimientos"]
+              "protocol": "http", "host": ["localhost"], "port": "8082", "path": ["api", "movimientos"]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"valor\": -540.00,\n  \"cuentaId\": 3\n}",
+              "raw": "{\n  \"valor\": 150.00,\n  \"cuentaId\": 3\n}",
               "options": { "raw": { "language": "json" } }
             }
           }
         },
         {
-          "name": "Retiro 1000 — Saldo Insuficiente F3 cuenta 4",
+          "name": "12. Retiro 540 — Cuenta 496825 Marianela Ahorros",
           "request": {
             "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json", "type": "text" }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }],
             "url": {
               "raw": "http://localhost:8082/api/movimientos",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8082",
-              "path": ["api", "movimientos"]
+              "protocol": "http", "host": ["localhost"], "port": "8082", "path": ["api", "movimientos"]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"valor\": -1000.00,\n  \"cuentaId\": 4\n}",
+              "raw": "{\n  \"valor\": -540.00,\n  \"cuentaId\": 4\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "13. Retiro 1000 — Saldo Insuficiente F3 (cuenta 3 saldo 150)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json", "type": "text" }],
+            "url": {
+              "raw": "http://localhost:8082/api/movimientos",
+              "protocol": "http", "host": ["localhost"], "port": "8082", "path": ["api", "movimientos"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"valor\": -1000.00,\n  \"cuentaId\": 3\n}",
               "options": { "raw": { "language": "json" } }
             }
           }
@@ -432,10 +353,7 @@
             "header": [],
             "url": {
               "raw": "http://localhost:8082/api/movimientos/1",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8082",
-              "path": ["api", "movimientos", "1"]
+              "protocol": "http", "host": ["localhost"], "port": "8082", "path": ["api", "movimientos", "1"]
             }
           }
         },
@@ -446,10 +364,7 @@
             "header": [],
             "url": {
               "raw": "http://localhost:8082/api/movimientos?cuentaId=1",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8082",
-              "path": ["api", "movimientos"],
+              "protocol": "http", "host": ["localhost"], "port": "8082", "path": ["api", "movimientos"],
               "query": [{ "key": "cuentaId", "value": "1" }]
             }
           }
@@ -460,58 +375,49 @@
       "name": "MS-Reportes",
       "item": [
         {
-          "name": "Reporte F4 — Jose Lema clienteId 1",
+          "name": "14. Reporte F4 — Jose Lema clienteId 1",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8082/api/reportes?fechaInicio=2024-01-01T00:00:00&fechaFin=2024-12-31T23:59:59&clienteId=1",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8082",
-              "path": ["api", "reportes"],
+              "raw": "http://localhost:8082/api/reportes?fechaInicio=2026-01-01T00:00:00&fechaFin=2026-12-31T23:59:59&clienteId=1",
+              "protocol": "http", "host": ["localhost"], "port": "8082", "path": ["api", "reportes"],
               "query": [
-                { "key": "fechaInicio", "value": "2024-01-01T00:00:00" },
-                { "key": "fechaFin",    "value": "2024-12-31T23:59:59" },
-                { "key": "clienteId",   "value": "1" }
+                { "key": "fechaInicio", "value": "2026-01-01T00:00:00" },
+                { "key": "fechaFin",    "value": "2026-12-31T23:59:59" },
+                { "key": "clienteId",  "value": "1" }
               ]
             }
           }
         },
         {
-          "name": "Reporte F4 — Marianela clienteId 2",
+          "name": "15. Reporte F4 — Marianela clienteId 2",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8082/api/reportes?fechaInicio=2024-01-01T00:00:00&fechaFin=2024-12-31T23:59:59&clienteId=2",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8082",
-              "path": ["api", "reportes"],
+              "raw": "http://localhost:8082/api/reportes?fechaInicio=2026-01-01T00:00:00&fechaFin=2026-12-31T23:59:59&clienteId=2",
+              "protocol": "http", "host": ["localhost"], "port": "8082", "path": ["api", "reportes"],
               "query": [
-                { "key": "fechaInicio", "value": "2024-01-01T00:00:00" },
-                { "key": "fechaFin",    "value": "2024-12-31T23:59:59" },
-                { "key": "clienteId",   "value": "2" }
+                { "key": "fechaInicio", "value": "2026-01-01T00:00:00" },
+                { "key": "fechaFin",    "value": "2026-12-31T23:59:59" },
+                { "key": "clienteId",  "value": "2" }
               ]
             }
           }
         },
         {
-          "name": "Reporte F4 — Juan Osorio clienteId 3",
+          "name": "16. Reporte F4 — Juan Osorio clienteId 3",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8082/api/reportes?fechaInicio=2024-01-01T00:00:00&fechaFin=2024-12-31T23:59:59&clienteId=3",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8082",
-              "path": ["api", "reportes"],
+              "raw": "http://localhost:8082/api/reportes?fechaInicio=2026-01-01T00:00:00&fechaFin=2026-12-31T23:59:59&clienteId=3",
+              "protocol": "http", "host": ["localhost"], "port": "8082", "path": ["api", "reportes"],
               "query": [
-                { "key": "fechaInicio", "value": "2024-01-01T00:00:00" },
-                { "key": "fechaFin",    "value": "2024-12-31T23:59:59" },
-                { "key": "clienteId",   "value": "3" }
+                { "key": "fechaInicio", "value": "2026-01-01T00:00:00" },
+                { "key": "fechaFin",    "value": "2026-12-31T23:59:59" },
+                { "key": "clienteId",  "value": "3" }
               ]
             }
           }
@@ -522,30 +428,24 @@
       "name": "Health Checks",
       "item": [
         {
-          "name": "Health ms-clientes 8081",
+          "name": "Health ms-clientes",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
               "raw": "http://localhost:8081/actuator/health",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8081",
-              "path": ["actuator", "health"]
+              "protocol": "http", "host": ["localhost"], "port": "8081", "path": ["actuator", "health"]
             }
           }
         },
         {
-          "name": "Health ms-cuentas 8082",
+          "name": "Health ms-cuentas",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
               "raw": "http://localhost:8082/actuator/health",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8082",
-              "path": ["actuator", "health"]
+              "protocol": "http", "host": ["localhost"], "port": "8082", "path": ["actuator", "health"]
             }
           }
         }

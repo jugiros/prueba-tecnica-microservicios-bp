@@ -9,11 +9,13 @@ Sistema bancario de microservicios desarrollado con Java 21, Spring Boot 4.1.0 y
 - [Tecnologías](#tecnologías)
 - [Arquitectura](#arquitectura)
 - [Requisitos previos](#requisitos-previos)
+- [Verificar puertos libres](#verificar-puertos-libres)
 - [Levantamiento del sistema](#levantamiento-del-sistema)
 - [Verificación del sistema](#verificación-del-sistema)
 - [Pruebas con Postman](#pruebas-con-postman)
 - [Orden de ejecución de APIs](#orden-de-ejecución-de-apis)
 - [Solución de problemas](#solución-de-problemas)
+- [Detener el sistema](#detener-el-sistema)
 
 ---
 
@@ -26,9 +28,8 @@ Sistema bancario de microservicios desarrollado con Java 21, Spring Boot 4.1.0 y
 | PostgreSQL | 16-alpine |
 | RabbitMQ | 3.13-management-alpine |
 | MapStruct | 1.6.3 |
-| Flyway | 12.4.0 |
 | SpringDoc OpenAPI | 2.8.6 |
-| Docker | Desktop |
+| Docker Desktop | Latest |
 
 ---
 
@@ -42,20 +43,13 @@ prueba-tecnica-microservicios-bp/
 └── banco-api.postman_collection.json
 ```
 
-### Patrón: Arquitectura Hexagonal + DDD
-
-```
-infrastructure/adapter/in/rest     → Controllers (HTTP)
-domain/service                     → Lógica de negocio
-domain/port                        → Puertos (interfaces)
-infrastructure/adapter/out/        → Persistencia y mensajería
-```
+Patrón: **Arquitectura Hexagonal + DDD**
 
 ---
 
 ## ✅ Requisitos Previos
 
-- **Docker Desktop** instalado y en ejecución
+- **Docker Desktop** instalado
 - **Postman** instalado
 - Puertos libres: `5432`, `5672`, `8081`, `8082`, `15672`
 
@@ -63,28 +57,106 @@ infrastructure/adapter/out/        → Persistencia y mensajería
 
 ---
 
+## 🔌 Verificar Puertos Libres
+
+Antes de levantar el sistema verificar que los puertos estén disponibles.
+Si algún comando retorna resultados el puerto está ocupado y Docker fallará.
+
+```powershell
+netstat -an | findstr :5432
+netstat -an | findstr :5672
+netstat -an | findstr :8081
+netstat -an | findstr :8082
+netstat -an | findstr :15672
+```
+
+| Puerto | Servicio | Si está ocupado |
+|---|---|---|
+| 5432 | PostgreSQL | Detener PostgreSQL local |
+| 5672 | RabbitMQ AMQP | Detener otro broker AMQP |
+| 8081 | ms-clientes HTTP | Detener proceso en ese puerto |
+| 8082 | ms-cuentas HTTP | Detener proceso en ese puerto |
+| 15672 | RabbitMQ Management UI | No crítico — solo afecta el panel web |
+
+---
+
 ## 🚀 Levantamiento del Sistema
+
+> ⚠️ **IMPORTANTE**: Todos los comandos deben ejecutarse desde la carpeta raíz del proyecto.
+> Si Docker Desktop tiene problemas con la interfaz gráfica, usar únicamente PowerShell.
 
 ### Paso 1 — Clonar el repositorio
 
-```bash
+```powershell
 git clone https://github.com/jugiros/prueba-tecnica-microservicios-bp
 cd prueba-tecnica-microservicios-bp
 ```
 
-### Paso 2 — Construir y levantar los servicios
+### Paso 2 — Iniciar Docker Desktop desde PowerShell
 
-```bash
+Si Docker Desktop no está abierto, iniciarlo desde consola:
+
+```powershell
+Start-Process "C:\Program Files\Docker\Docker\Docker Desktop.exe"
+```
+
+Esperar 60 segundos y verificar que Docker esté listo:
+
+```powershell
+docker ps
+```
+
+Resultado esperado (sin errores):
+```
+CONTAINER ID   IMAGE   COMMAND   CREATED   STATUS   PORTS   NAMES
+```
+
+> Si aparece un error esperar 30 segundos más y repetir `docker ps`.
+
+### Paso 3 — Limpiar estado previo (si aplica)
+
+Si el sistema ya fue levantado anteriormente, limpiar completamente:
+
+```powershell
+docker-compose down -v
+docker container prune -f
+docker volume prune -f
+```
+
+Verificar que quedó limpio:
+
+```powershell
+docker ps -a
+docker volume ls
+```
+
+Ambos deben retornar vacío.
+
+### Paso 4 — Levantar el sistema
+
+```powershell
 docker-compose up -d
 ```
 
-> ⏱️ El primer levantamiento tarda entre **3 y 8 minutos** porque descarga las imágenes base y compila el código Java dentro del contenedor.
+> ⏱️ **Primera vez**: 5-8 minutos (descarga imágenes y compila el código Java).
+> ⏱️ **Siguientes veces**: 15-30 segundos (imágenes ya están en caché).
 
-### Paso 3 — Esperar que todos los servicios estén healthy
+Resultado esperado:
 
-Esperar **90 segundos** y verificar:
+```
+✔ Network  bp-network    Created
+✔ Volume   postgres_data Created
+✔ Container bp-postgres  Healthy
+✔ Container bp-rabbitmq  Healthy
+✔ Container bp-ms-clientes Healthy
+✔ Container bp-ms-cuentas  Started
+```
 
-```bash
+### Paso 5 — Verificar estado de los contenedores
+
+Esperar 90 segundos y ejecutar:
+
+```powershell
 docker-compose ps
 ```
 
@@ -98,27 +170,15 @@ bp-ms-clientes   Up (healthy)
 bp-ms-cuentas    Up (healthy)
 ```
 
-> ⚠️ Si algún contenedor aparece como `starting` esperar 30 segundos más y repetir el comando.
+> Si algún contenedor aparece como `starting` esperar 30 segundos más y repetir.
 
 ---
 
 ## 🔍 Verificación del Sistema
 
-### Verificar que los servicios responden
+### Verificar tablas en PostgreSQL
 
-```bash
-curl http://localhost:8081/actuator/health
-curl http://localhost:8082/actuator/health
-```
-
-Respuesta esperada:
-```json
-{"status":"UP"}
-```
-
-### Verificar que las tablas existen en PostgreSQL
-
-```bash
+```powershell
 docker exec -it bp-postgres psql -U bpuser -d bpdb -c "\dt"
 ```
 
@@ -130,9 +190,17 @@ Resultado esperado:
  public | clientes    | table | bpuser
  public | cuentas     | table | bpuser
  public | movimientos | table | bpuser
+(3 rows)
 ```
 
-### Verificar Swagger UI
+### Verificar health de los microservicios
+
+```powershell
+docker logs bp-ms-clientes --tail=5
+docker logs bp-ms-cuentas --tail=5
+```
+
+### Verificar Swagger UI (navegador)
 
 - ms-clientes: http://localhost:8081/swagger-ui.html
 - ms-cuentas: http://localhost:8082/swagger-ui.html
@@ -141,35 +209,44 @@ Resultado esperado:
 
 ## ⚠️ Solución de Problemas
 
-### Problema 1 — Docker Desktop se congela al levantar
+### Problema 1 — Docker Desktop no inicia o interfaz gráfica congelada
 
-Si la interfaz gráfica de Docker Desktop se congela, usar la terminal:
+Usar exclusivamente PowerShell:
 
-```bash
-# Verificar estado de contenedores
-docker ps -a
+```powershell
+# Iniciar Docker Desktop
+Start-Process "C:\Program Files\Docker\Docker\Docker Desktop.exe"
 
-# Ver logs de un contenedor específico
-docker logs bp-ms-clientes --tail=30
-docker logs bp-ms-cuentas --tail=30
-docker logs bp-postgres --tail=20
-docker logs bp-rabbitmq --tail=20
+# Esperar 60 segundos
+Start-Sleep -Seconds 60
+
+# Verificar
+docker ps
 ```
 
-### Problema 2 — RabbitMQ falla al arrancar (error erlang.cookie)
+### Problema 2 — RabbitMQ falla con error erlang.cookie
 
-```bash
+```powershell
 docker-compose down -v
 docker container prune -f
 docker volume prune -f
 docker-compose up -d
 ```
 
-### Problema 3 — ms-clientes o ms-cuentas no arrancan
+### Problema 3 — Contenedor ms-clientes o ms-cuentas no arranca
 
-```bash
+Ver logs del error:
+
+```powershell
+docker logs bp-ms-clientes --tail=30
+docker logs bp-ms-cuentas --tail=30
+```
+
+Reconstruir imágenes:
+
+```powershell
 docker-compose down
-docker-compose build --no-cache
+docker-compose build --no-cache ms-clientes ms-cuentas
 docker-compose up -d
 ```
 
@@ -177,7 +254,7 @@ docker-compose up -d
 
 Si `\dt` retorna `Did not find any relations`, crear las tablas manualmente:
 
-```bash
+```powershell
 docker exec -it bp-postgres psql -U bpuser -d bpdb
 ```
 
@@ -226,22 +303,26 @@ Salir de psql:
 
 Verificar:
 
-```bash
+```powershell
 docker exec -it bp-postgres psql -U bpuser -d bpdb -c "\dt"
 ```
 
 ### Problema 5 — Primera petición muy lenta (30-60 segundos)
 
-**Es normal.** La primera petición inicializa:
-- Conexión a RabbitMQ
-- Pool de conexiones Hikari
-- Documentación Swagger
-
-A partir de la segunda petición la respuesta es inmediata.
+**Es normal.** La primera petición inicializa la conexión a RabbitMQ y el pool de Hikari. A partir de la segunda petición la respuesta es inmediata.
 
 ### Problema 6 — Error 500 en la primera petición
 
-Reintentar la misma petición. El error ocurre porque RabbitMQ aún no terminó de inicializarse. La segunda petición funciona correctamente.
+Reintentar la misma petición. La segunda petición funciona correctamente.
+
+### Problema 7 — Reporte retorna lista vacía []
+
+Verificar que las fechas correspondan al año actual. Los movimientos se crean con la fecha del servidor (2026):
+
+```
+fechaInicio=2026-01-01T00:00:00
+fechaFin=2026-12-31T23:59:59
+```
 
 ---
 
@@ -254,22 +335,25 @@ Reintentar la misma petición. El error ocurre porque RabbitMQ aún no terminó 
 3. Seleccionar `banco-api.postman_collection.json`
 4. Clic en **Import**
 
-> ✅ Las URLs ya están configuradas con `http://localhost:8081` y `http://localhost:8082` — no requiere configurar variables de entorno.
+> ✅ Las URLs ya están configuradas con `http://localhost:8081` y `http://localhost:8082`.
+> No se requiere configurar variables de entorno en Postman.
 
 ---
 
 ## 📋 Orden de Ejecución de APIs
 
-Ejecutar **estrictamente en este orden** para que los IDs sean consistentes.
+Ejecutar **estrictamente en este orden**.
 
 ---
 
-### 1️⃣ MS-Clientes — Crear clientes
+### 1️⃣ Crear Clientes
 
-#### POST Crear Cliente — Jose Lema
 ```
 POST http://localhost:8081/api/clientes
+Content-Type: application/json
 ```
+
+**Jose Lema:**
 ```json
 {
   "nombre": "Jose Lema",
@@ -283,14 +367,9 @@ POST http://localhost:8081/api/clientes
   "estado": true
 }
 ```
-**Respuesta esperada:** `201 Created` — anotar `"id": 1`
+✅ Esperado: `201 Created` — id: 1
 
----
-
-#### POST Crear Cliente — Marianela Montalvo
-```
-POST http://localhost:8081/api/clientes
-```
+**Marianela Montalvo:**
 ```json
 {
   "nombre": "Marianela Montalvo",
@@ -304,14 +383,9 @@ POST http://localhost:8081/api/clientes
   "estado": true
 }
 ```
-**Respuesta esperada:** `201 Created` — anotar `"id": 2`
+✅ Esperado: `201 Created` — id: 2
 
----
-
-#### POST Crear Cliente — Juan Osorio
-```
-POST http://localhost:8081/api/clientes
-```
+**Juan Osorio:**
 ```json
 {
   "nombre": "Juan Osorio",
@@ -325,218 +399,117 @@ POST http://localhost:8081/api/clientes
   "estado": true
 }
 ```
-**Respuesta esperada:** `201 Created` — anotar `"id": 3`
+✅ Esperado: `201 Created` — id: 3
 
 ---
 
-### 2️⃣ MS-Cuentas — Crear cuentas
+### 2️⃣ Crear Cuentas
 
-#### POST Crear Cuenta — Jose Lema Ahorros
 ```
 POST http://localhost:8082/api/cuentas
+Content-Type: application/json
 ```
+
+**Cuenta Ahorros Jose Lema:**
 ```json
-{
-  "numeroCuenta": "478758",
-  "tipoCuenta": "Ahorros",
-  "saldoInicial": 2000.00,
-  "clienteId": 1,
-  "estado": true
-}
+{ "numeroCuenta": "478758", "tipoCuenta": "Ahorros", "saldoInicial": 2000.00, "clienteId": 1, "estado": true }
 ```
-**Respuesta esperada:** `201 Created` — cuentaId: 1
+✅ Esperado: `201` — cuentaId: 1
+
+**Cuenta Corriente Marianela:**
+```json
+{ "numeroCuenta": "225487", "tipoCuenta": "Corriente", "saldoInicial": 100.00, "clienteId": 2, "estado": true }
+```
+✅ Esperado: `201` — cuentaId: 2
+
+**Cuenta Ahorros Marianela:**
+```json
+{ "numeroCuenta": "496825", "tipoCuenta": "Ahorros", "saldoInicial": 540.00, "clienteId": 2, "estado": true }
+```
+✅ Esperado: `201` — cuentaId: 3
+
+**Cuenta Ahorros Juan Osorio:**
+```json
+{ "numeroCuenta": "495878", "tipoCuenta": "Ahorros", "saldoInicial": 0.00, "clienteId": 3, "estado": true }
+```
+✅ Esperado: `201` — cuentaId: 4
 
 ---
 
-#### POST Crear Cuenta — Marianela Corriente
+### 3️⃣ Registrar Movimientos
+
 ```
-POST http://localhost:8082/api/cuentas
+POST http://localhost:8082/api/movimientos
+Content-Type: application/json
 ```
-```json
-{
-  "numeroCuenta": "225487",
-  "tipoCuenta": "Corriente",
-  "saldoInicial": 100.00,
-  "clienteId": 2,
-  "estado": true
-}
-```
-**Respuesta esperada:** `201 Created` — cuentaId: 2
+
+| # | Body | Saldo resultante |
+|---|---|---|
+| 1 | `{ "valor": 600.00, "cuentaId": 1 }` | 2600.00 |
+| 2 | `{ "valor": -575.00, "cuentaId": 1 }` | 2025.00 |
+| 3 | `{ "valor": 150.00, "cuentaId": 2 }` | 250.00 |
+| 4 | `{ "valor": -540.00, "cuentaId": 3 }` | 0.00 |
+
+✅ Todos esperan `201 Created`
 
 ---
 
-#### POST Crear Cuenta — Marianela Ahorros
-```
-POST http://localhost:8082/api/cuentas
-```
-```json
-{
-  "numeroCuenta": "496825",
-  "tipoCuenta": "Ahorros",
-  "saldoInicial": 540.00,
-  "clienteId": 2,
-  "estado": true
-}
-```
-**Respuesta esperada:** `201 Created` — cuentaId: 3
+### 4️⃣ Prueba Saldo Insuficiente (F3)
 
----
-
-#### POST Crear Cuenta — Juan Osorio Ahorros
-```
-POST http://localhost:8082/api/cuentas
-```
-```json
-{
-  "numeroCuenta": "495878",
-  "tipoCuenta": "Ahorros",
-  "saldoInicial": 0.00,
-  "clienteId": 3,
-  "estado": true
-}
-```
-**Respuesta esperada:** `201 Created` — cuentaId: 4
-
----
-
-### 3️⃣ MS-Movimientos — Registrar transacciones
-
-#### POST Deposito 600 — Cuenta Jose Lema
 ```
 POST http://localhost:8082/api/movimientos
 ```
 ```json
-{
-  "valor": 600.00,
-  "cuentaId": 1
-}
+{ "valor": -1000.00, "cuentaId": 4 }
 ```
-**Respuesta esperada:** `201` — saldo resultante: `2600.00`
 
----
-
-#### POST Retiro 575 — Cuenta Jose Lema
-```
-POST http://localhost:8082/api/movimientos
-```
+⛔ Esperado: `400 Bad Request`
 ```json
-{
-  "valor": -575.00,
-  "cuentaId": 1
-}
-```
-**Respuesta esperada:** `201` — saldo resultante: `2025.00`
-
----
-
-#### POST Deposito 150 — Cuenta Marianela Corriente
-```
-POST http://localhost:8082/api/movimientos
-```
-```json
-{
-  "valor": 150.00,
-  "cuentaId": 2
-}
-```
-**Respuesta esperada:** `201` — saldo resultante: `250.00`
-
----
-
-#### POST Retiro 540 — Cuenta Marianela Ahorros
-```
-POST http://localhost:8082/api/movimientos
-```
-```json
-{
-  "valor": -540.00,
-  "cuentaId": 3
-}
-```
-**Respuesta esperada:** `201` — saldo resultante: `0.00`
-
----
-
-#### POST Retiro 1000 — Saldo Insuficiente (F3)
-```
-POST http://localhost:8082/api/movimientos
-```
-```json
-{
-  "valor": -1000.00,
-  "cuentaId": 4
-}
-```
-**Respuesta esperada:** `400 Bad Request`
-```json
-{
-  "codigo": "SALDO_INSUFICIENTE",
-  "mensaje": "Saldo no disponible",
-  "status": 400
-}
+{ "mensaje": "Saldo no disponible" }
 ```
 
 ---
 
-### 4️⃣ MS-Reportes — Reporte de estado de cuenta (F4)
+### 5️⃣ Reportes F4
 
-> ⚠️ **IMPORTANTE — Fechas:** Los movimientos se crean con la fecha actual del servidor (año 2026). Usar el año actual en los parámetros.
+> ⚠️ **Usar año 2026** — los movimientos se crean con la fecha del servidor.
 
-#### GET Reporte — Jose Lema
 ```
 GET http://localhost:8082/api/reportes?fechaInicio=2026-01-01T00:00:00&fechaFin=2026-12-31T23:59:59&clienteId=1
 ```
-**Respuesta esperada:** `200 OK` con lista de movimientos de Jose Lema
+✅ Esperado: `200 OK` con movimientos de Jose Lema
 
----
-
-#### GET Reporte — Marianela Montalvo
 ```
 GET http://localhost:8082/api/reportes?fechaInicio=2026-01-01T00:00:00&fechaFin=2026-12-31T23:59:59&clienteId=2
 ```
-**Respuesta esperada:** `200 OK` con movimientos de ambas cuentas de Marianela
+✅ Esperado: `200 OK` con movimientos de Marianela
 
----
-
-#### GET Reporte — Juan Osorio
 ```
 GET http://localhost:8082/api/reportes?fechaInicio=2026-01-01T00:00:00&fechaFin=2026-12-31T23:59:59&clienteId=3
 ```
-**Respuesta esperada:** `200 OK` con `[]` — Juan Osorio no tiene movimientos registrados, lista vacía es el comportamiento correcto.
+✅ Esperado: `200 OK` con `[]` — Juan Osorio no tiene movimientos, es correcto.
 
 ---
 
 ## 📊 Resumen de Resultados Esperados
 
-| # | Endpoint | Método | Status Esperado | Observación |
-|---|---|---|---|---|
-| 1 | /api/clientes | POST | 201 | Jose Lema — id:1 |
-| 2 | /api/clientes | POST | 201 | Marianela — id:2 |
-| 3 | /api/clientes | POST | 201 | Juan Osorio — id:3 |
-| 4 | /api/cuentas | POST | 201 | Cuenta 478758 — id:1 |
-| 5 | /api/cuentas | POST | 201 | Cuenta 225487 — id:2 |
-| 6 | /api/cuentas | POST | 201 | Cuenta 496825 — id:3 |
-| 7 | /api/cuentas | POST | 201 | Cuenta 495878 — id:4 |
-| 8 | /api/movimientos | POST | 201 | Depósito 600 |
-| 9 | /api/movimientos | POST | 201 | Retiro 575 |
-| 10 | /api/movimientos | POST | 201 | Depósito 150 |
-| 11 | /api/movimientos | POST | 201 | Retiro 540 |
-| 12 | /api/movimientos | POST | **400** | ⚠️ Saldo insuficiente |
-| 13 | /api/reportes | GET | 200 | Jose Lema con movimientos |
-| 14 | /api/reportes | GET | 200 | Marianela con movimientos |
-| 15 | /api/reportes | GET | 200 | Juan Osorio lista vacía `[]` |
+| # | Endpoint | Método | Status |
+|---|---|---|---|
+| 1-3 | /api/clientes | POST | 201 |
+| 4-7 | /api/cuentas | POST | 201 |
+| 8-11 | /api/movimientos | POST | 201 |
+| 12 | /api/movimientos (saldo insuf.) | POST | **400** |
+| 13-15 | /api/reportes | GET | 200 |
 
 ---
 
 ## 🛑 Detener el Sistema
 
-```bash
+```powershell
+# Detener preservando datos
 docker-compose down
-```
 
-Para eliminar también los volúmenes (resetear la base de datos):
-
-```bash
+# Detener y eliminar todos los datos (reset completo)
 docker-compose down -v
 ```
 
@@ -544,5 +517,133 @@ docker-compose down -v
 
 ## 👤 Autor
 
-**Juan Molina** — Prueba técnica DEVSU / BP  
+**Juan Molina** — Prueba técnica DEVSU / BP
+Repositorio: https://github.com/jugiros/prueba-tecnica-microservicios-bp
+
+---
+
+## 🎯 Validación de Funcionalidades F1 — F7
+
+Resumen de cumplimiento de cada requerimiento de la prueba técnica.
+
+---
+
+### F1 — CRUD Cliente / CRU Cuenta y Movimiento ✅
+
+| Entidad | Operaciones | Endpoint | Puerto |
+|---|---|---|---|
+| Cliente | GET, POST, PUT, PATCH, **DELETE** | `/api/clientes` | 8081 |
+| Cuenta | GET, POST, PUT, PATCH | `/api/cuentas` | 8082 |
+| Movimiento | GET, POST, PUT | `/api/movimientos` | 8082 |
+
+Cómo probar:
+```
+POST   http://localhost:8081/api/clientes       → 201
+GET    http://localhost:8081/api/clientes       → 200
+GET    http://localhost:8081/api/clientes/1     → 200
+PUT    http://localhost:8081/api/clientes/1     → 200
+PATCH  http://localhost:8081/api/clientes/1     → 200
+DELETE http://localhost:8081/api/clientes/1     → 204
+```
+
+---
+
+### F2 — Registro de movimientos con actualización de saldo ✅
+
+- Valor positivo → **Depósito** → suma al saldo actual
+- Valor negativo → **Retiro** → resta del saldo actual
+- Cada movimiento queda registrado con fecha, tipo, valor y saldo resultante
+
+Cómo probar:
+```
+POST http://localhost:8082/api/movimientos
+Body: { "valor": -575.00, "cuentaId": 1 }   → Retiro   → 201
+Body: { "valor":  600.00, "cuentaId": 2 }   → Deposito → 201
+```
+
+---
+
+### F3 — Saldo no disponible ✅
+
+Cuando el valor del retiro supera el saldo disponible retorna **400**:
+
+```
+POST http://localhost:8082/api/movimientos
+Body: { "valor": -1000.00, "cuentaId": 3 }
+```
+
+Respuesta:
+```json
+{ "mensaje": "Saldo no disponible" }
+```
+
+---
+
+### F4 — Reporte estado de cuenta por fechas y cliente ✅
+
+```
+GET http://localhost:8082/api/reportes
+  ?fechaInicio=2026-01-01T00:00:00
+  &fechaFin=2026-12-31T23:59:59
+  &clienteId=1
+```
+
+Retorna JSON con: fecha, cliente, numeroCuenta, tipo, saldoInicial, estado, movimiento, saldoDisponible.
+
+> ⚠️ Usar **año 2026** — los movimientos se registran con la fecha actual del servidor.
+> Juan Osorio retorna `[]` si no tiene movimientos — es el comportamiento correcto.
+
+---
+
+### F5 — Prueba unitaria entidad Cliente ✅
+
+6 pruebas JUnit 5 + Mockito en ms-clientes:
+
+```bash
+cd ms-clientes
+mvn test
+```
+
+Resultado esperado: `BUILD SUCCESS — Tests run: 6, Failures: 0`
+
+---
+
+### F6 — Prueba de integración ⚠️
+
+Marcada como **deseable** en el enunciado — no implementada en esta entrega.
+
+---
+
+### F7 — Despliegue en Docker ✅
+
+Un solo comando levanta los 4 servicios:
+
+```powershell
+docker-compose up -d
+```
+
+Servicios:
+
+| Contenedor | Imagen | Puerto |
+|---|---|---|
+| bp-postgres | postgres:16-alpine | 5432 |
+| bp-rabbitmq | rabbitmq:3.13-management-alpine | 5672, 15672 |
+| bp-ms-clientes | Multistage build Java 21 | 8081 |
+| bp-ms-cuentas | Multistage build Java 21 | 8082 |
+
+---
+
+## 📁 Entregables
+
+| Archivo | Descripción |
+|---|---|
+| `ms-clientes/` | Microservicio CRUD clientes — arquitectura hexagonal |
+| `ms-cuentas/` | Microservicio cuentas, movimientos y reportes |
+| `docker-compose.yml` | Orquestación completa de 4 servicios |
+| `BaseDatos.sql` | Script SQL con esquema completo y datos de prueba |
+| `banco-api.postman_collection.json` | Colección Postman con los 16 endpoints |
+| `README.md` | Este archivo — instrucciones completas |
+| `ms-clientes/README.md` | Documentación técnica de ms-clientes |
+| `ms-cuentas/README.md` | Documentación técnica de ms-cuentas |
+
 Repositorio: https://github.com/jugiros/prueba-tecnica-microservicios-bp
