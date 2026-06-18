@@ -96,6 +96,29 @@ Si algún comando retorna resultados el puerto está ocupado y Docker fallará.
 ## 🚀 Levantamiento del Sistema
 
 > ⚠️ **IMPORTANTE**: Todos los comandos deben ejecutarse desde la carpeta raíz del proyecto.
+> La interfaz gráfica de Docker Desktop **no es necesaria en ningún momento** — todo funciona desde PowerShell.
+
+### ⚠️ Si Docker Desktop tiene la interfaz gráfica congelada
+
+No cerrar ni reinstalar. Usar exclusivamente PowerShell para todo el proceso:
+
+```powershell
+# Iniciar Docker Desktop desde consola — no usar el ícono de escritorio
+Start-Process "C:\Program Files\Docker\Docker\Docker Desktop.exe"
+
+# Esperar que Docker arranque completamente
+Start-Sleep -Seconds 60
+
+# Verificar que Docker responde — debe mostrar tabla vacía sin error
+docker ps
+
+# Si responde sin error, continuar con los siguientes pasos normalmente
+# Si sigue fallando, esperar 30 segundos más y repetir docker ps
+```
+
+> ✅ Una vez que `docker ps` responde sin error, Docker está listo aunque la interfaz gráfica esté congelada o no visible.
+
+---
 
 ### Paso 1 — Clonar el repositorio
 
@@ -351,15 +374,40 @@ Ejecutar **estrictamente en este orden**.
 
 ## ⚠️ Solución de Problemas
 
-### Docker Desktop no inicia o interfaz gráfica congelada
+### Problema 1 — Docker Desktop no inicia o interfaz gráfica congelada
+
+Si Docker Desktop tiene problemas con la interfaz gráfica o se congela, **NO es necesario usar la interfaz**. Todo se puede operar desde PowerShell:
 
 ```powershell
+# Paso 1 — Iniciar Docker Desktop desde consola
 Start-Process "C:\Program Files\Docker\Docker\Docker Desktop.exe"
+
+# Paso 2 — Esperar que Docker arranque (60 segundos)
 Start-Sleep -Seconds 60
+
+# Paso 3 — Verificar que Docker está listo (debe responder sin error)
 docker ps
+
+# Paso 4 — Si docker ps responde con la tabla vacía, Docker está listo
+# Levantar el sistema directamente desde consola
+docker-compose up -d
 ```
 
-### RabbitMQ falla con error erlang.cookie
+> ⚠️ Si `docker ps` sigue dando error después de 60 segundos, esperar 30 segundos más y repetir.
+> La interfaz gráfica de Docker Desktop NO es necesaria en ningún momento — todos los comandos funcionan desde PowerShell.
+
+**Verificar estado de contenedores desde consola:**
+```powershell
+docker-compose ps
+docker logs bp-ms-clientes --tail=10
+docker logs bp-ms-cuentas --tail=10
+docker logs bp-postgres --tail=10
+docker logs bp-rabbitmq --tail=10
+```
+
+---
+
+### Problema 2 — RabbitMQ falla con error erlang.cookie o permisos
 
 ```powershell
 docker-compose down -v
@@ -368,56 +416,116 @@ docker volume prune -f
 docker-compose up -d
 ```
 
-### Las tablas no se crearon automáticamente
+---
 
+### Problema 3 — Las tablas no se crearon automáticamente
+
+Si `docker exec -it bp-postgres psql -U bpuser -d bpdb -c "\dt"` retorna `Did not find any relations`, crear las tablas manualmente:
+
+**Paso 1 — Conectarse a PostgreSQL:**
 ```powershell
 docker exec -it bp-postgres psql -U bpuser -d bpdb
 ```
 
+**Paso 2 — Ejecutar el script completo dentro de psql:**
 ```sql
 CREATE TABLE IF NOT EXISTS clientes (
-    id BIGSERIAL PRIMARY KEY, nombre VARCHAR(255) NOT NULL,
-    genero VARCHAR(50), edad INTEGER, identificacion VARCHAR(50) UNIQUE NOT NULL,
-    direccion VARCHAR(255), telefono VARCHAR(50), cliente_id VARCHAR(50) UNIQUE NOT NULL,
-    contrasena VARCHAR(255) NOT NULL, estado BOOLEAN DEFAULT TRUE
+    id              BIGSERIAL       PRIMARY KEY,
+    nombre          VARCHAR(255)    NOT NULL,
+    genero          VARCHAR(50),
+    edad            INTEGER,
+    identificacion  VARCHAR(50)     NOT NULL UNIQUE,
+    direccion       VARCHAR(255),
+    telefono        VARCHAR(50),
+    cliente_id      VARCHAR(50)     NOT NULL UNIQUE,
+    contrasena      VARCHAR(255)    NOT NULL,
+    estado          BOOLEAN         NOT NULL DEFAULT TRUE
 );
+
 CREATE TABLE IF NOT EXISTS cuentas (
-    id BIGSERIAL PRIMARY KEY, numero_cuenta VARCHAR(50) UNIQUE NOT NULL,
-    tipo_cuenta VARCHAR(50) NOT NULL, saldo_inicial DECIMAL(19,2) NOT NULL,
-    saldo_actual DECIMAL(19,2) NOT NULL, estado BOOLEAN DEFAULT TRUE, cliente_id BIGINT NOT NULL
+    id              BIGSERIAL       PRIMARY KEY,
+    numero_cuenta   VARCHAR(50)     NOT NULL UNIQUE,
+    tipo_cuenta     VARCHAR(50)     NOT NULL,
+    saldo_inicial   DECIMAL(19,2)   NOT NULL,
+    saldo_actual    DECIMAL(19,2)   NOT NULL,
+    estado          BOOLEAN         NOT NULL DEFAULT TRUE,
+    cliente_id      BIGINT          NOT NULL
 );
+
 CREATE TABLE IF NOT EXISTS movimientos (
-    id BIGSERIAL PRIMARY KEY, fecha TIMESTAMP NOT NULL, tipo_movimiento VARCHAR(50) NOT NULL,
-    valor DECIMAL(19,2) NOT NULL, saldo DECIMAL(19,2) NOT NULL, cuenta_id BIGINT NOT NULL,
-    CONSTRAINT fk_cuenta FOREIGN KEY (cuenta_id) REFERENCES cuentas(id)
+    id               BIGSERIAL       PRIMARY KEY,
+    fecha            TIMESTAMP       NOT NULL DEFAULT NOW(),
+    tipo_movimiento  VARCHAR(50)     NOT NULL,
+    valor            DECIMAL(19,2)   NOT NULL,
+    saldo            DECIMAL(19,2)   NOT NULL,
+    cuenta_id        BIGINT          NOT NULL,
+    CONSTRAINT fk_movimiento_cuenta
+        FOREIGN KEY (cuenta_id)
+        REFERENCES cuentas(id)
 );
+```
+
+**Paso 3 — Salir de psql:**
+```sql
 \q
 ```
 
-### Primera petición muy lenta (30-60 segundos)
-
-**Es normal.** Inicializa RabbitMQ, Hikari y Swagger. La segunda petición es inmediata.
-
-### Reporte retorna lista vacía []
-
-Verificar que las fechas usen el **año 2026**:
-```
-fechaInicio=2026-01-01T00:00:00&fechaFin=2026-12-31T23:59:59
+**Paso 4 — Verificar que las 3 tablas existen:**
+```powershell
+docker exec -it bp-postgres psql -U bpuser -d bpdb -c "\dt"
 ```
 
-### Contenedor no arranca — ver logs
+Resultado esperado:
+```
+ Schema |    Name     | Type  | Owner
+--------+-------------+-------+--------
+ public | clientes    | table | bpuser
+ public | cuentas     | table | bpuser
+ public | movimientos | table | bpuser
+(3 rows)
+```
 
+---
+
+### Problema 4 — Primera petición muy lenta (30-60 segundos)
+
+**Es normal.** La primera petición inicializa la conexión a RabbitMQ, el pool de Hikari y la documentación Swagger. A partir de la segunda petición la respuesta es inmediata (menos de 1 segundo).
+
+---
+
+### Problema 5 — Reporte retorna lista vacía []
+
+Verificar que las fechas usen el **año 2026** — los movimientos se registran con la fecha actual del servidor:
+
+```
+fechaInicio=2026-01-01T00:00:00
+fechaFin=2026-12-31T23:59:59
+```
+
+> Juan Osorio siempre retorna `[]` — es correcto porque no tiene movimientos exitosos registrados.
+
+---
+
+### Problema 6 — Contenedor no arranca
+
+Ver los logs del error:
 ```powershell
 docker logs bp-ms-clientes --tail=30
 docker logs bp-ms-cuentas --tail=30
 ```
 
-Reconstruir:
+Reconstruir las imágenes:
 ```powershell
 docker-compose down
 docker-compose build --no-cache ms-clientes ms-cuentas
 docker-compose up -d
 ```
+
+---
+
+### Problema 7 — Error 500 en la primera petición
+
+Reintentar la misma petición. El error ocurre porque RabbitMQ aún no terminó de inicializarse. La segunda petición funciona correctamente.
 
 ---
 
