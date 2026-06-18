@@ -18,16 +18,20 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 20s
 
   rabbitmq:
     image: rabbitmq:3.13-management-alpine
     container_name: bp-rabbitmq
+    hostname: bp-rabbitmq
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-bpuser}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-bppassword}
     ports:
       - "5672:5672"
       - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
     networks:
       - bp-network
     healthcheck:
@@ -110,3 +114,4 @@ networks:
 
 volumes:
   postgres_data:
+  rabbitmq_data:
