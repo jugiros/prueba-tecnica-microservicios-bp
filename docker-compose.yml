@@ -36,6 +36,73 @@ services:
       timeout: 5s
       retries: 5
 
+  ms-clientes:
+    build:
+      context: ./ms-clientes
+      dockerfile: Dockerfile
+    container_name: bp-ms-clientes
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB:-bpdb}
+      DB_USER: ${POSTGRES_USER:-bpuser}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-bppassword}
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: ${RABBITMQ_USER:-bpuser}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-bppassword}
+      SERVER_PORT: 8081
+    ports:
+      - "8081:8081"
+    networks:
+      - bp-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  ms-cuentas:
+    build:
+      context: ./ms-cuentas
+      dockerfile: Dockerfile
+    container_name: bp-ms-cuentas
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB:-bpdb}
+      DB_USER: ${POSTGRES_USER:-bpuser}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-bppassword}
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: ${RABBITMQ_USER:-bpuser}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-bppassword}
+      MS_CLIENTES_URL: http://ms-clientes:8081
+      SERVER_PORT: 8082
+    ports:
+      - "8082:8082"
+    networks:
+      - bp-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      ms-clientes:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
 networks:
   bp-network:
     driver: bridge
