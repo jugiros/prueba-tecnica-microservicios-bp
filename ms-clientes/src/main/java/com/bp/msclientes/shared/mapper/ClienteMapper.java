@@ -11,7 +11,6 @@ import org.mapstruct.Mapping;
 public interface ClienteMapper {
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "clienteId", ignore = true)
     Cliente toDomain(ClienteRequestDTO dto);
 
     ClienteResponseDTO toResponseDTO(Cliente cliente);

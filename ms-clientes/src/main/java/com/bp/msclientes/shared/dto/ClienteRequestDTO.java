@@ -36,6 +36,9 @@ public class ClienteRequestDTO {
     @NotBlank(message = "El telefono es obligatorio")
     private String telefono;
 
+    @NotBlank(message = "El clienteId es obligatorio")
+    private String clienteId;
+
     @NotBlank(message = "La contrasena es obligatoria")
     @Size(min = 4, message = "La contrasena debe tener al menos 4 caracteres")
     private String contrasena;
